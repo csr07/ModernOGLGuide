@@ -12,6 +12,10 @@ float vertices[] = {
 	-0.5f, -0.5f, 0.0f, 0.0f, 1.0f
 };
 
+GLuint elements[] = {
+	0, 1, 2
+};
+
 const char* vertexSource = R"glsl(
 	#version 150 core
 
@@ -73,6 +77,11 @@ int main(int argc, char* argv[])
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	GLuint ebo;
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -138,7 +147,9 @@ int main(int argc, char* argv[])
 
 		/////////////////////////////////		//Drawing the stuff
 		
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glDrawArrays(GL_TRIANGLES, 0, 3);		//Drawing the vertices from vbo directly
+
+		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);	//drawing via element indices..
 		
 		/////////////////////////////////
 
