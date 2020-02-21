@@ -5,6 +5,34 @@
 
 #include <SDL.h>
 
+float vertices[] = {
+	0.0f, 0.5f,
+	0.5f, -0.5f,
+	-0.5f, -0.5f
+};
+
+const char* vertexSource = R"glsl(
+	#version 150 core
+
+	in vec2 position;
+
+	void main()
+	{
+		gl_Position = vec4(position, 0.0, 1.0);
+	}
+)glsl";
+
+const char* fragmentSource = R"glsl(
+	#version 150 core
+
+	out vec4 outColor;
+
+	void main()
+	{
+		outColor = vec4(1.0, 1.0, 1.0, 1.0);
+	}
+)glsl";
+
 
 int main(int argc, char* argv[])
 {
@@ -23,9 +51,58 @@ int main(int argc, char* argv[])
 	glewExperimental = GL_TRUE;			//Glew Experimental and Init after Window and OpenGL Context creation
 	glewInit();
 
-	GLuint vertexBuffer;				//Testing an OpenGL function loaded by GLEW
-	glGenBuffers(1, &vertexBuffer);
-	printf("Glew Function Test: %u\n", vertexBuffer);
+	///////////////////////////////////////////////////////////////////////////////
+
+	//GLuint vertexBuffer;				//Testing an OpenGL function loaded by GLEW
+	//glGenBuffers(1, &vertexBuffer);
+	//printf("Glew Function Test: %u\n", vertexBuffer);
+
+	GLuint vao;							//Creating a VAO before any VBO bound...
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	//////////////////////////////////////////////////////////////////////////////
+
+	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertexShader, 1, &vertexSource, NULL);
+	glCompileShader(vertexShader);
+		
+		GLint status;
+		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &status);
+		char buffer[512];
+		glGetShaderInfoLog(vertexShader, 512, NULL, buffer);
+
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+	glCompileShader(fragmentShader);
+			
+		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &status);
+		char frag_buffer[512];
+		glGetShaderInfoLog(fragmentShader, 512, NULL, frag_buffer);
+
+	GLuint shaderProgram = glCreateProgram();
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);    
+
+	glLinkProgram(shaderProgram);
+	glUseProgram(shaderProgram);
+
+	//////////////////////////////////////////////////////////////////////////////
+
+	GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
+	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(posAttrib);
+
+	//////////////////////////////////////////////////////////////////////////////
+
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	//////////////////////////////////////////////////////////////////////////////
 	
 	SDL_Event windowEvent;
 	while (true)
