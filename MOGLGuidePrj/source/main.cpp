@@ -99,10 +99,6 @@ int main(int argc, char* argv[])
 	glEnableVertexAttribArray(posAttrib);
 
 	//////////////////////////////////////////////////////////////////////////////
-
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-
-	//////////////////////////////////////////////////////////////////////////////
 	
 	SDL_Event windowEvent;
 	while (true)
@@ -112,6 +108,10 @@ int main(int argc, char* argv[])
 			if (windowEvent.type == SDL_QUIT) break;
 			if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_ESCAPE) break;
 		}
+
+		/////////////////////////////////		//Drawing the stuff
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		/////////////////////////////////
 
 		SDL_GL_SwapWindow(window);
 	}	
