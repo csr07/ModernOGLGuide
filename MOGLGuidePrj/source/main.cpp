@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <chrono>
 
 #define GLEW_STATIC
 #include <GL/glew.h> //GLEW_STATIC and glew.h defined and included before the library we use to create our window
@@ -24,12 +25,13 @@ const char* vertexSource = R"glsl(
 
 const char* fragmentSource = R"glsl(
 	#version 150 core
-
+	
+	uniform vec3 triangleColor;
 	out vec4 outColor;
 
 	void main()
 	{
-		outColor = vec4(1.0, 1.0, 1.0, 1.0);
+		outColor = vec4(triangleColor, 1.0);
 	}
 )glsl";
 
@@ -98,6 +100,13 @@ int main(int argc, char* argv[])
 	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(posAttrib);
 
+	GLint uniColor = glGetUniformLocation(shaderProgram, "triangleColor");
+	glUniform3f(uniColor, 1.0f, 0.0f, 0.0f);
+
+	//////////////////////////////////////////////////////////////////////////////
+	//Time stuff
+	auto t_start = std::chrono::high_resolution_clock::now();
+
 	//////////////////////////////////////////////////////////////////////////////
 	
 	SDL_Event windowEvent;
@@ -109,8 +118,19 @@ int main(int argc, char* argv[])
 			if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_ESCAPE) break;
 		}
 
+		/////////////////////////////////		//Time update
+		
+		auto t_now = std::chrono::high_resolution_clock::now();
+		float time = std::chrono::duration_cast<std::chrono::duration<float>> (t_now - t_start).count();
+
+		/////////////////////////////////		//Changing Uniforms
+
+		glUniform3f(uniColor, (sin((double)time * 4.0f) + 1.0f) / 2.0f, 0.0f, 0.0f);
+
 		/////////////////////////////////		//Drawing the stuff
+		
 		glDrawArrays(GL_TRIANGLES, 0, 3);
+		
 		/////////////////////////////////
 
 		SDL_GL_SwapWindow(window);
