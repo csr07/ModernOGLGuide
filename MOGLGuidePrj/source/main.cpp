@@ -6,6 +6,8 @@
 
 #include <SDL.h>
 
+#include "FileReader.h"
+
 float vertices[] = {
 	0.0f, 0.5f, 1.0f, 0.0f, 0.0f,
 	0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
@@ -15,36 +17,6 @@ float vertices[] = {
 GLuint elements[] = {
 	0, 1, 2
 };
-
-const char* vertexSource = R"glsl(
-	#version 150 core
-
-	in vec2 position;
-	in vec3 color;
-
-	out vec3 Color;
-
-	void main()
-	{
-		Color = color;
-		gl_Position = vec4(position, 0.0, 1.0);
-	}
-)glsl";
-
-const char* fragmentSource = R"glsl(
-	#version 150 core
-	
-	//uniform vec3 triangleColor;
-	in vec3 Color;
-
-	out vec4 outColor;
-
-	void main()
-	{
-		outColor = vec4(Color, 1.0);
-	}
-)glsl";
-
 
 int main(int argc, char* argv[])
 {
@@ -84,9 +56,13 @@ int main(int argc, char* argv[])
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 
 	//////////////////////////////////////////////////////////////////////////////
+	//Shaders
+
+	char* vSource;
+	FileReader::Read("../Resources/Shaders/TriangleShader.vs", &vSource); //relative to ProjectFile, sending as a pointer to pointer	
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexSource, NULL);
+	glShaderSource(vertexShader, 1, &vSource, NULL);
 	glCompileShader(vertexShader);
 		
 		GLint status;
@@ -94,14 +70,22 @@ int main(int argc, char* argv[])
 		char buffer[512];
 		glGetShaderInfoLog(vertexShader, 512, NULL, buffer);
 
+	delete(vSource);
+	vSource = NULL;
+	
+	char* fSource;
+	FileReader::Read("../Resources/Shaders/TriangleShader.fs", fSource); //relative to ProjectFile, sending as a reference to a pointer
+
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+	glShaderSource(fragmentShader, 1, &fSource, NULL);
 	glCompileShader(fragmentShader);
 			
 		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &status);
 		char frag_buffer[512];
 		glGetShaderInfoLog(fragmentShader, 512, NULL, frag_buffer);
 
+	delete(fSource);
+	fSource = NULL;
 	GLuint shaderProgram = glCreateProgram();
 	glAttachShader(shaderProgram, vertexShader);
 	glAttachShader(shaderProgram, fragmentShader);    
