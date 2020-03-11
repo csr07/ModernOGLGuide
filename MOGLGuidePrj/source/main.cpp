@@ -7,15 +7,29 @@
 #include <SDL.h>
 
 #include "FileReader.h"
+#include "Texture.h"
 
-float vertices[] = {
+float verticesTriangle[] = {
 	0.0f, 0.5f, 1.0f, 0.0f, 0.0f,
 	0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
 	-0.5f, -0.5f, 0.0f, 0.0f, 1.0f
 };
 
-GLuint elements[] = {
+float verticesRectangle[] = {
+	//  Position      Color             Texcoords
+		-0.5f,  0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // Top-left
+		 0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // Top-right
+		 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // Bottom-right
+		-0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f  // Bottom-left
+};
+
+GLuint elementsTriangle[] = {
 	0, 1, 2
+};
+
+GLuint elementsRectangle[] = {
+	0, 1, 2,
+	2, 3, 0
 };
 
 int main(int argc, char* argv[])
@@ -48,18 +62,18 @@ int main(int argc, char* argv[])
 	GLuint vbo;
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(verticesRectangle), verticesRectangle, GL_STATIC_DRAW);
 
 	GLuint ebo;
 	glGenBuffers(1, &ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elementsRectangle), elementsRectangle, GL_STATIC_DRAW);
 
 	//////////////////////////////////////////////////////////////////////////////
 	//Shaders
 
 	char* vSource;
-	FileReader::Read("../Resources/Shaders/TriangleShader.vs", &vSource); //relative to ProjectFile, sending as a pointer to pointer	
+	FileReader::Read("../Resources/Shaders/RectangleShader.vs", &vSource); //relative to ProjectFile, sending as a pointer to pointer	
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vSource, NULL);
@@ -74,7 +88,7 @@ int main(int argc, char* argv[])
 	vSource = NULL;
 	
 	char* fSource;
-	FileReader::Read("../Resources/Shaders/TriangleShader.fs", fSource); //relative to ProjectFile, sending as a reference to a pointer
+	FileReader::Read("../Resources/Shaders/RectangleShader.fs", fSource); //relative to ProjectFile, sending as a reference to a pointer
 
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fSource, NULL);
@@ -94,20 +108,29 @@ int main(int argc, char* argv[])
 	glUseProgram(shaderProgram);
 
 	//////////////////////////////////////////////////////////////////////////////
+	//Attribute pointers
 
 	GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
-	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), 0);
+	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 7*sizeof(float), 0);
 	glEnableVertexAttribArray(posAttrib);
 
 	//GLint uniColor = glGetUniformLocation(shaderProgram, "triangleColor");
 	//glUniform3f(uniColor, 1.0f, 0.0f, 0.0f);
 	GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
 	glEnableVertexAttribArray(colAttrib);
-	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
+	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float)));
+
+	GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
+	glEnableVertexAttribArray(texAttrib);
+	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 7*sizeof(float), (void*)(5*sizeof(float)));
 
 	//////////////////////////////////////////////////////////////////////////////
 	//Time stuff
 	auto t_start = std::chrono::high_resolution_clock::now();
+
+	//////////////////////////////////////////////////////////////////////////////
+	//Texture stuff
+	Texture kittenTex;
 
 	//////////////////////////////////////////////////////////////////////////////
 	
@@ -133,7 +156,7 @@ int main(int argc, char* argv[])
 		
 		//glDrawArrays(GL_TRIANGLES, 0, 3);		//Drawing the vertices from vbo directly
 
-		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);	//drawing via element indices..
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	//drawing 6 vertices via element indices..
 		
 		/////////////////////////////////
 
