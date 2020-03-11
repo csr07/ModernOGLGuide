@@ -124,13 +124,17 @@ int main(int argc, char* argv[])
 	glEnableVertexAttribArray(texAttrib);
 	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 7*sizeof(float), (void*)(5*sizeof(float)));
 
+	//Activate Texture Units, not needed when only one image used.
+	glUniform1i(glGetUniformLocation(shaderProgram, "texKitten"), 0);
+	glUniform1i(glGetUniformLocation(shaderProgram, "texPuppy"), 1);
+
 	//////////////////////////////////////////////////////////////////////////////
 	//Time stuff
 	auto t_start = std::chrono::high_resolution_clock::now();
 
 	//////////////////////////////////////////////////////////////////////////////
 	//Texture stuff
-	Texture kittenTex;
+	Texture kittenPuppyTex;
 
 	//////////////////////////////////////////////////////////////////////////////
 	

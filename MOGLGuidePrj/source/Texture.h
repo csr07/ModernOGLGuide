@@ -8,5 +8,5 @@ public:
 	Texture();
 
 private:
-	GLuint tex;
+	GLuint textures[2];
 };
