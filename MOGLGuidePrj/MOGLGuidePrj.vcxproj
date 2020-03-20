@@ -148,12 +148,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\Geometry.cpp" />
+    <ClCompile Include="source\GeometryParser.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\FileReader.cpp" />
+    <ClCompile Include="source\SimpleGeometry.cpp" />
+    <ClCompile Include="source\SimpleGeometryParser.cpp" />
     <ClCompile Include="source\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\FileReader.h" />
+    <ClInclude Include="source\Geometry.h" />
+    <ClInclude Include="source\GeometryParser.h" />
+    <ClInclude Include="source\SimpleGeometry.h" />
+    <ClInclude Include="source\SimpleGeometryParser.h" />
     <ClInclude Include="source\Texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

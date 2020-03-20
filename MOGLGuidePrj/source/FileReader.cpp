@@ -8,7 +8,7 @@ void FileReader::Read(const char* file, char** source) //test, using pointer to 
 	FILE* pf;
 
 	errno_t error = fopen_s(&pf, file, "rb");
-	if (error == 0)
+	if (error == 0 && pf)
 	{
 		printf_s("Success to open file: %s \n", file);
 		fseek(pf, 0, SEEK_END);

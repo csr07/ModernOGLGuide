@@ -9,6 +9,9 @@
 #include "FileReader.h"
 #include "Texture.h"
 
+#include "SimpleGeometry.h"
+
+
 float verticesTriangle[] = {
 	0.0f, 0.5f, 1.0f, 0.0f, 0.0f,
 	0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
@@ -36,6 +39,12 @@ int main(int argc, char* argv[])
 {
 	printf("Welcome to Modern OpenGL Guide test R2\n");
 
+	/////TEST
+			
+	
+
+	////END TEST
+
 	SDL_Init(SDL_INIT_EVERYTHING);
 	//SDL_Delay(1000);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -55,6 +64,40 @@ int main(int argc, char* argv[])
 	//glGenBuffers(1, &vertexBuffer);
 	//printf("Glew Function Test: %u\n", vertexBuffer);
 
+	///////////////////////////////////////////////////////////////////////////////
+
+	Geometry* myRectangle;
+
+	myRectangle = new SimpleGeometry("../Resources/Geometries/Rectangle.geom");	
+
+	int sizet = sizeof(verticesRectangle);
+	printf("sizeof(verticesRectangle): %d\n", sizet);
+
+	float* verts = myRectangle->GetVertices();	
+	int sizeVertsPtr = sizeof(verts);
+	int sizeVertsPtrValue = sizeof(*verts);
+	int sizeTotalVertsPtrValue = sizeof(*verts) * myRectangle->GetVerticesLen();
+	printf("sizeof(verts): %d\n", sizeVertsPtr);
+	printf("sizeof(*verts): %d\n", sizeVertsPtrValue);
+	printf("sizeof(*verts) * myRectangle->GetVerticesLen(): %d\n", sizeTotalVertsPtrValue);
+
+
+	int sizeOriginalElements = sizeof(elementsRectangle);
+	int* elements = myRectangle->GetElements();
+	int sizeElementsPtr = sizeof(elements);
+	int sizeElementsPtrValue = sizeof(*elements);
+	int elementsSize = sizeof(*elements) * myRectangle->GetNumTriangles() * 3;
+
+	printf("sizeof(OriginalelementsRectangle): %d\n", sizeOriginalElements);
+	printf("sizeof(elements): %d\n", sizeElementsPtr);
+	printf("sizeof(*elements): %d\n", sizeElementsPtrValue);
+	printf("elementsSize: %d\n", sizeof(*elements) * myRectangle->GetNumTriangles() * 3);
+
+	printf("///////////////////////////////////////////////////////////////////////////////");
+
+
+	///////////////////////////////////////////////////////////////////////////////
+
 	GLuint vao;							//Creating a VAO before any VBO bound...
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -62,12 +105,14 @@ int main(int argc, char* argv[])
 	GLuint vbo;
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verticesRectangle), verticesRectangle, GL_STATIC_DRAW);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(verticesRectangle), verticesRectangle, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(*verts) * myRectangle->GetVerticesLen(), verts, GL_STATIC_DRAW);
 
 	GLuint ebo;
 	glGenBuffers(1, &ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elementsRectangle), elementsRectangle, GL_STATIC_DRAW);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elementsRectangle), elementsRectangle, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(*elements) * myRectangle->GetNumTriangles() * 3, elements, GL_STATIC_DRAW);
 
 	//////////////////////////////////////////////////////////////////////////////
 	//Shaders
@@ -166,6 +211,9 @@ int main(int argc, char* argv[])
 
 		SDL_GL_SwapWindow(window);
 	}	
+
+	delete myRectangle;
+	myRectangle = NULL;
 		
 	SDL_GL_DeleteContext(context);
 	SDL_Quit();
