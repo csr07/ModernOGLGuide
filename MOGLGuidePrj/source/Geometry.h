@@ -13,10 +13,11 @@ public:
 	const char* GetFileName() const{ return filename; }
 
 	const int GetNumVertex() { return numVertex; }
-	const int GetVerticesLen() { return verticesLen; }
+	const int GetVerticesSize() { return verticesSize; }
 	float* GetVertices()const { return vertices; }
 
 	const int GetNumTriangles() { return numTriangles; }
+	const int GetElementsSize() { return elementsSize; }
 	int* GetElements()const { return elements; }	
 	
 	void SetName(const char* n)
@@ -27,24 +28,24 @@ public:
 	}
 
 	void SetNumVertex(const int n) { numVertex = n; }
-	void SetVerticesLen(const int n) { verticesLen = n; }
+	void SetVerticesSize(const int n) { verticesSize = n; }
 	void SetVertices(const float* f) { vertices = (float*)f; }		
 
 	void SetNumTriangles(const int n) { numTriangles = n; }
+	void SetElementsSize(const int n) { elementsSize = n; }
 	void SetElements(const int* i) { elements = (int*)i; }
 
 protected:
 	const char* filename;
 
-	////geometry info
-	const char* name;
+	////geometry info	
 
 	int numVertex;
-	int verticesLen;
-	float* vertices;	
-
+	int verticesSize;
 	int numTriangles; //num Triangles /  Elements = (numTriangles*3)
-	int* elements;
+	int elementsSize;
 
-	GeometryParser* parser;
+	const char* name;
+	float* vertices;
+	int* elements;		
 };

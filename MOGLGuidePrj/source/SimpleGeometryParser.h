@@ -2,17 +2,18 @@
 
 #include "GeometryParser.h"
 
+class SimpleGeometry;
 
 class SimpleGeometryParser : public GeometryParser
 {
 public:
 	static enum enumTokens { NAME, VERTICES, TRIS, NONE };
 
-	SimpleGeometryParser() = default;
-	SimpleGeometryParser(Geometry* pg);
+	SimpleGeometryParser();	
 	~SimpleGeometryParser();	
 
-	virtual void Parse();
+	
+	SimpleGeometry* GetSimpleGeometry(const char* filename);
 	virtual const char* CheckForToken(const char* line);
 	const enumTokens CheckForTokenEnum(const char* line);	
 

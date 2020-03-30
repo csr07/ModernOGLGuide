@@ -6,8 +6,7 @@
 
 #include "FileReader.h"
 
-SimpleGeometryParser::SimpleGeometryParser(Geometry* pg) :
-	GeometryParser(pg)
+SimpleGeometryParser::SimpleGeometryParser()
 {
 	printf_s("in SimpleGeometryParser(Geometry*)");	
 }
@@ -17,15 +16,14 @@ SimpleGeometryParser::~SimpleGeometryParser()
 	printf_s("in ~SimpleGeometryParser()");
 }
 
-//////////////////////////////////
+SimpleGeometry* SimpleGeometryParser::GetSimpleGeometry(const char* filename)
+{	
+	printf_s("in SimpleGeometryParser::GetGeometry()\n");	
 
-void SimpleGeometryParser::Parse()
-{
-	//Hacer la lectura del archivo	linea por linea
-	printf_s("in SimpleGeometryParser::Parse()\n");	
+	SimpleGeometry* geometry = new SimpleGeometry(filename);
 
 	char* sourceFile;
-	FileReader::Read(pGeometry->GetFileName(), &sourceFile);
+	FileReader::Read(geometry->GetFileName(), &sourceFile);
 	int sourceFileSize = sizeof(sourceFile);
 	int sourceFileLen = strlen(sourceFile);	
 
@@ -55,7 +53,7 @@ void SimpleGeometryParser::Parse()
 				printf_s("sizeof(tname): %d <--\n", (unsigned int)sizeof(tname));
 				printf_s("strlen(tname) : %d <--\n", (int)strlen(tname));
 
-				pGeometry->SetName(tname);
+				geometry->SetName(tname);
 			}
 		}
 			break;
@@ -89,9 +87,9 @@ void SimpleGeometryParser::Parse()
 					printf_s("vertex%d : ( %f, %f, %f, %f, %f, %f, %f, %f )\n", i, *(buffer + i), *(buffer + i + 1), *(buffer + i + 2), *(buffer + i + 3), *(buffer + i + 4), *(buffer + i + 5), *(buffer + i + 6), *(buffer + i + 7));
 			}
 
-			pGeometry->SetNumVertex(tNumVertex);
-			pGeometry->SetVerticesLen(tNumVertex * vertexStrideDim);
-			pGeometry->SetVertices(buffer);
+			geometry->SetNumVertex(tNumVertex);
+			geometry->SetVerticesSize(sizeof(*buffer) * tNumVertex * vertexStrideDim);
+			geometry->SetVertices(buffer);
 		}
 			break;
 		case SimpleGeometryParser::enumTokens::TRIS:
@@ -115,8 +113,9 @@ void SimpleGeometryParser::Parse()
 				printf_s("triangle%d : ( %d , %d , %d )\n", i, *(buffer + i), *(buffer + i + 1), *(buffer + i + 2));
 			}
 
-			pGeometry->SetNumTriangles(tNumTriangles);
-			pGeometry->SetElements(buffer);
+			geometry->SetNumTriangles(tNumTriangles);
+			geometry->SetElementsSize(sizeof(*buffer) * tNumTriangles * 3);
+			geometry->SetElements(buffer);
 		}
 			break;
 		default:
@@ -129,6 +128,8 @@ void SimpleGeometryParser::Parse()
 
 	delete sourceFile;
 	sourceFile = NULL;
+
+	return geometry;
 }
 
 const char* SimpleGeometryParser::CheckForToken(const char* line)

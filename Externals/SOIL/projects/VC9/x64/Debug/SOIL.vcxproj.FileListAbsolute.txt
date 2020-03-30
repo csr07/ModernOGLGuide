@@ -1,0 +1,2 @@
+D:\A_DEVTRAINING\OpenGl_Train\01ModernOGLGuide\ModernOGLGuide\Externals\SOIL\lib\x64\Debug\SOIL.pdb
+D:\A_DEVTRAINING\OpenGl_Train\01ModernOGLGuide\ModernOGLGuide\Externals\SOIL\projects\VC9\x64\Debug\SOIL.pdb

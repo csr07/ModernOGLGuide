@@ -10,40 +10,11 @@
 #include "Texture.h"
 
 #include "SimpleGeometry.h"
-
-
-float verticesTriangle[] = {
-	0.0f, 0.5f, 1.0f, 0.0f, 0.0f,
-	0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-	-0.5f, -0.5f, 0.0f, 0.0f, 1.0f
-};
-
-float verticesRectangle[] = {
-	//  Position      Color             Texcoords
-		-0.5f,  0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // Top-left
-		 0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // Top-right
-		 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // Bottom-right
-		-0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f  // Bottom-left
-};
-
-GLuint elementsTriangle[] = {
-	0, 1, 2
-};
-
-GLuint elementsRectangle[] = {
-	0, 1, 2,
-	2, 3, 0
-};
+#include "SimpleGeometryParser.h"
 
 int main(int argc, char* argv[])
 {
 	printf("Welcome to Modern OpenGL Guide test R2\n");
-
-	/////TEST
-			
-	
-
-	////END TEST
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 	//SDL_Delay(1000);
@@ -59,60 +30,25 @@ int main(int argc, char* argv[])
 	glewInit();
 
 	///////////////////////////////////////////////////////////////////////////////
-
-	//GLuint vertexBuffer;				//Testing an OpenGL function loaded by GLEW
-	//glGenBuffers(1, &vertexBuffer);
-	//printf("Glew Function Test: %u\n", vertexBuffer);
-
-	///////////////////////////////////////////////////////////////////////////////
-
-	Geometry* myRectangle;
-
-	myRectangle = new SimpleGeometry("../Resources/Geometries/Rectangle.geom");	
-
-	int sizet = sizeof(verticesRectangle);
-	printf("sizeof(verticesRectangle): %d\n", sizet);
-
-	float* verts = myRectangle->GetVertices();	
-	int sizeVertsPtr = sizeof(verts);
-	int sizeVertsPtrValue = sizeof(*verts);
-	int sizeTotalVertsPtrValue = sizeof(*verts) * myRectangle->GetVerticesLen();
-	printf("sizeof(verts): %d\n", sizeVertsPtr);
-	printf("sizeof(*verts): %d\n", sizeVertsPtrValue);
-	printf("sizeof(*verts) * myRectangle->GetVerticesLen(): %d\n", sizeTotalVertsPtrValue);
-
-
-	int sizeOriginalElements = sizeof(elementsRectangle);
-	int* elements = myRectangle->GetElements();
-	int sizeElementsPtr = sizeof(elements);
-	int sizeElementsPtrValue = sizeof(*elements);
-	int elementsSize = sizeof(*elements) * myRectangle->GetNumTriangles() * 3;
-
-	printf("sizeof(OriginalelementsRectangle): %d\n", sizeOriginalElements);
-	printf("sizeof(elements): %d\n", sizeElementsPtr);
-	printf("sizeof(*elements): %d\n", sizeElementsPtrValue);
-	printf("elementsSize: %d\n", sizeof(*elements) * myRectangle->GetNumTriangles() * 3);
-
-	printf("///////////////////////////////////////////////////////////////////////////////");
-
-
-	///////////////////////////////////////////////////////////////////////////////
-
-	GLuint vao;							//Creating a VAO before any VBO bound...
+	//Creating a VAO before any VBO bound...
+	//This vao will be enough for these program because all geometries will have the same vertex format
+	GLuint vao;							
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(verticesRectangle), verticesRectangle, GL_STATIC_DRAW);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(*verts) * myRectangle->GetVerticesLen(), verts, GL_STATIC_DRAW);
+	///////////////////////////////////////////////////////////////////////////////
+	//Create a Geometry
+	
+	SimpleGeometryParser* parser = new SimpleGeometryParser();	
+	SimpleGeometry* myRectangle = parser->GetSimpleGeometry("../Resources/Geometries/Rectangle.geom");
+	
+		
+	glBindBuffer(GL_ARRAY_BUFFER, myRectangle->GetHandlerVertexBuffer());
+	glBufferData(GL_ARRAY_BUFFER, myRectangle->GetVerticesSize(), myRectangle->GetVertices(), GL_STATIC_DRAW);
 
-	GLuint ebo;
-	glGenBuffers(1, &ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elementsRectangle), elementsRectangle, GL_STATIC_DRAW);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(*elements) * myRectangle->GetNumTriangles() * 3, elements, GL_STATIC_DRAW);
+	
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, myRectangle->GetHandlerElementBuffer());
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, myRectangle->GetElementsSize(), myRectangle->GetElements(), GL_STATIC_DRAW);
 
 	//////////////////////////////////////////////////////////////////////////////
 	//Shaders
@@ -170,12 +106,15 @@ int main(int argc, char* argv[])
 	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 7*sizeof(float), (void*)(5*sizeof(float)));
 
 	//Activate Texture Units, not needed when only one image used.
-	glUniform1i(glGetUniformLocation(shaderProgram, "texKitten"), 0);
+	//2 steps:
+	GLuint texLocation = glGetUniformLocation(shaderProgram, "texKitten");
+	glUniform1i(texLocation, 0); //sending the number of texture unit
+	//in 1 step
 	glUniform1i(glGetUniformLocation(shaderProgram, "texPuppy"), 1);
 
 	//////////////////////////////////////////////////////////////////////////////
 	//Time stuff
-	auto t_start = std::chrono::high_resolution_clock::now();
+	//auto t_start = std::chrono::high_resolution_clock::now();
 
 	//////////////////////////////////////////////////////////////////////////////
 	//Texture stuff
@@ -194,8 +133,8 @@ int main(int argc, char* argv[])
 
 		/////////////////////////////////		//Time update
 		
-		auto t_now = std::chrono::high_resolution_clock::now();
-		float time = std::chrono::duration_cast<std::chrono::duration<float>> (t_now - t_start).count();
+		//auto t_now = std::chrono::high_resolution_clock::now();
+		//float time = std::chrono::duration_cast<std::chrono::duration<float>> (t_now - t_start).count();
 
 		/////////////////////////////////		//Changing Uniforms
 
@@ -205,7 +144,7 @@ int main(int argc, char* argv[])
 		
 		//glDrawArrays(GL_TRIANGLES, 0, 3);		//Drawing the vertices from vbo directly
 
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	//drawing 6 vertices via element indices..
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	//6 elements or 6 vertexElements ~ 2 triangles
 		
 		/////////////////////////////////
 
@@ -214,6 +153,9 @@ int main(int argc, char* argv[])
 
 	delete myRectangle;
 	myRectangle = NULL;
+
+	delete parser;
+	parser = NULL;
 		
 	SDL_GL_DeleteContext(context);
 	SDL_Quit();
