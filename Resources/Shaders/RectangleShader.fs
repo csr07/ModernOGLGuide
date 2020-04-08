@@ -16,8 +16,14 @@ void main()
 	//outColor = texture(tex, Texcoord);
 	//outColor = texture(tex, Texcoord) * vec4(Color, 1.0);
 	
-	vec4 colKitten = texture(texKitten, Texcoord);
-    vec4 colPuppy = texture(texPuppy, Texcoord);
+	vec2 texref = Texcoord;
+	
+	//causing reflection on the lower half of the images
+	if(texref.y > 0.5)
+		texref.y = -texref.y + 1.0;
+	
+	vec4 colKitten = texture(texKitten, texref);
+    vec4 colPuppy = texture(texPuppy, texref);
 	
 	
     //outColor = mix(colKitten, colPuppy, 0.5);
