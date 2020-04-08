@@ -8,6 +8,7 @@ out vec4 outColor;
 //uniform sampler2D tex;
 uniform sampler2D texKitten;
 uniform sampler2D texPuppy;
+uniform float time;
 
 void main()
 {
@@ -19,6 +20,6 @@ void main()
     vec4 colPuppy = texture(texPuppy, Texcoord);
 	
 	
-	
-    outColor = mix(colKitten, colPuppy, 0.5);
+    //outColor = mix(colKitten, colPuppy, 0.5);
+    outColor = mix(colKitten, colPuppy, time);
 }

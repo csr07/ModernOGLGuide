@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
 	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 7*sizeof(float), 0);
 	glEnableVertexAttribArray(posAttrib);
 
-	//GLint uniColor = glGetUniformLocation(shaderProgram, "triangleColor");
+	GLint uniTime = glGetUniformLocation(shaderProgram, "time");
 	//glUniform3f(uniColor, 1.0f, 0.0f, 0.0f);
 	GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
 	glEnableVertexAttribArray(colAttrib);
@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
 
 	//////////////////////////////////////////////////////////////////////////////
 	//Time stuff
-	//auto t_start = std::chrono::high_resolution_clock::now();
+	auto t_start = std::chrono::high_resolution_clock::now();
 
 	//////////////////////////////////////////////////////////////////////////////
 	//Texture stuff
@@ -133,12 +133,12 @@ int main(int argc, char* argv[])
 
 		/////////////////////////////////		//Time update
 		
-		//auto t_now = std::chrono::high_resolution_clock::now();
-		//float time = std::chrono::duration_cast<std::chrono::duration<float>> (t_now - t_start).count();
+		auto t_now = std::chrono::high_resolution_clock::now();
+		float time = std::chrono::duration_cast<std::chrono::duration<float>> (t_now - t_start).count();
 
 		/////////////////////////////////		//Changing Uniforms
 
-		//glUniform3f(uniColor, (sin((double)time * 4.0f) + 1.0f) / 2.0f, 0.0f, 0.0f);
+		glUniform1f(uniTime, (sin((double)time * 4.0f) + 1.0f) / 2.0f);
 
 		/////////////////////////////////		//Drawing the stuff
 		
