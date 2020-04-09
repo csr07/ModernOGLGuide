@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-	SDL_Window* window = SDL_CreateWindow("Modern OpenGL Guide v2.0 2020", 100, 100, 800, 600, SDL_WINDOW_OPENGL);
+	SDL_Window* window = SDL_CreateWindow("Modern OpenGL Guide v2.0 2020", 100, 100, 1024, 768, SDL_WINDOW_OPENGL);
 	SDL_GLContext context = SDL_GL_CreateContext(window);
 
 	glewExperimental = GL_TRUE;			//Glew Experimental and Init after Window and OpenGL Context creation
@@ -95,7 +95,8 @@ int main(int argc, char* argv[])
 	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 7*sizeof(float), 0);
 	glEnableVertexAttribArray(posAttrib);
 
-	GLint uniTime = glGetUniformLocation(shaderProgram, "time");
+	GLint uniTime = glGetUniformLocation(shaderProgram, "time");	
+	GLint uniTimeSin = glGetUniformLocation(shaderProgram, "timeSin");	
 	//glUniform3f(uniColor, 1.0f, 0.0f, 0.0f);
 	GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
 	glEnableVertexAttribArray(colAttrib);
@@ -138,7 +139,8 @@ int main(int argc, char* argv[])
 
 		/////////////////////////////////		//Changing Uniforms
 
-		glUniform1f(uniTime, (sin((double)time * 4.0f) + 1.0f) / 2.0f);
+		glUniform1f(uniTimeSin, (sin((double)time * 1.0f) + 1.0f) / 2.0f);
+		glUniform1f(uniTime, time);
 
 		/////////////////////////////////		//Drawing the stuff
 		
