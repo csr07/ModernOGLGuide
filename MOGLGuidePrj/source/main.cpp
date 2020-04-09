@@ -6,6 +6,10 @@
 
 #include <SDL.h>
 
+#include <GLM/glm.hpp>
+#include <GLM/gtc/matrix_transform.hpp>
+#include <GLM/gtc/type_ptr.hpp>
+
 #include "FileReader.h"
 #include "Texture.h"
 
@@ -113,6 +117,10 @@ int main(int argc, char* argv[])
 	//in 1 step
 	glUniform1i(glGetUniformLocation(shaderProgram, "texPuppy"), 1);
 
+	GLint uniModel = glGetUniformLocation(shaderProgram, "model");
+	GLint uniView = glGetUniformLocation(shaderProgram, "view");
+	GLint uniProj = glGetUniformLocation(shaderProgram, "proj");
+
 	//////////////////////////////////////////////////////////////////////////////
 	//Time stuff
 	auto t_start = std::chrono::high_resolution_clock::now();
@@ -120,6 +128,10 @@ int main(int argc, char* argv[])
 	//////////////////////////////////////////////////////////////////////////////
 	//Texture stuff
 	Texture kittenPuppyTex;
+
+	//////////////////////////////////////////////////////////////////////////////
+	//Transformation stuff
+		
 
 	//////////////////////////////////////////////////////////////////////////////
 	
@@ -132,6 +144,10 @@ int main(int argc, char* argv[])
 			if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_ESCAPE) break;
 		}
 
+		/////////////////////////////////		//Clear Buffers
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
 		/////////////////////////////////		//Time update
 		
 		auto t_now = std::chrono::high_resolution_clock::now();
@@ -141,6 +157,22 @@ int main(int argc, char* argv[])
 
 		glUniform1f(uniTimeSin, (sin((double)time * 1.0f) + 1.0f) / 2.0f);
 		glUniform1f(uniTime, time);
+
+		/////////////////////////////////		//Transformation Uniforms
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::rotate(model, time * glm::radians(180.f) * 0.1f, glm::vec3(0.0f, 0.0f, 1.0f));
+
+		glm::mat4 view = glm::lookAt(
+			glm::vec3(0.0f, 0.0f, 10.0f), //camera position
+			glm::vec3(0.0f, 0.0f, 0.0f), //point of interest
+			glm::vec3(0.0f, 1.0f, 0.0f)  //y is UP,    x,z is the "plane"  ground			
+			);
+
+		glm::mat4 proj = glm::perspective(glm::radians(45.0f), 1024.0f / 768.0f, 1.0f, 10.0f);
+
+		glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
+		glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 
 		/////////////////////////////////		//Drawing the stuff
 		
