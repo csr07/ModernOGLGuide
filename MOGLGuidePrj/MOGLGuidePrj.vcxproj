@@ -100,7 +100,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\Externals\SDL2\include\;$(SolutionDir)\Externals\GLEWTest\include\;$(SolutionDir)\Externals\SOIL\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\Externals\SDL2\include\;$(SolutionDir)\Externals\GLEWTest\include\;$(SolutionDir)\Externals\SOIL\src\;$(SolutionDir)\Externals\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
