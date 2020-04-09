@@ -131,18 +131,23 @@ int main(int argc, char* argv[])
 
 	//////////////////////////////////////////////////////////////////////////////
 	//Transformation stuff
-		
+	GLfloat speed = 0.0f;
+	GLfloat angle = -45.0f;
 
 	//////////////////////////////////////////////////////////////////////////////
-	
+
 	SDL_Event windowEvent;
 	while (true)
 	{
 		if (SDL_PollEvent(&windowEvent))
 		{
-			if (windowEvent.type == SDL_QUIT) break;
+			if (windowEvent.type == SDL_QUIT) break;			
 			if (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_ESCAPE) break;
-		}
+			if (windowEvent.type == SDL_KEYDOWN && windowEvent.key.keysym.sym == SDLK_SPACE)
+			{
+				speed = 180.0f;
+			}			
+		}		
 
 		/////////////////////////////////		//Clear Buffers
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -160,10 +165,13 @@ int main(int argc, char* argv[])
 
 		/////////////////////////////////		//Transformation Uniforms
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::rotate(model, time * glm::radians(180.f) * 0.1f, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::rotate(model, time * glm::radians(angle) * 0.1f, glm::vec3(0.0f, 0.0f, 1.0f));
+
+		GLfloat s = sin(time * 5.0f) * 0.25f + 0.75f;
+		model = glm::scale(model, glm::vec3(s, s, s)); //scaling the image with a sin function
 
 		glm::mat4 view = glm::lookAt(
-			glm::vec3(0.0f, 0.0f, 10.0f), //camera position
+			glm::vec3(0.0f, 0.0f, 2.0f), //camera position
 			glm::vec3(0.0f, 0.0f, 0.0f), //point of interest
 			glm::vec3(0.0f, 1.0f, 0.0f)  //y is UP,    x,z is the "plane"  ground			
 			);
@@ -173,6 +181,9 @@ int main(int argc, char* argv[])
 		glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
+
+		speed /= 1.0f + time;
+		angle += 5 * speed * time;
 
 		/////////////////////////////////		//Drawing the stuff
 		
