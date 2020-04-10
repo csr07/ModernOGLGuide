@@ -44,21 +44,23 @@ int main(int argc, char* argv[])
 	//Create a Geometry
 	
 	SimpleGeometryParser* parser = new SimpleGeometryParser();	
-	SimpleGeometry* myRectangle = parser->GetSimpleGeometry("../Resources/Geometries/Rectangle.geom");
+	SimpleGeometry* myRectangle = parser->GetSimpleGeometry("../Resources/Geometries/Cube.geom");
 	
 		
 	glBindBuffer(GL_ARRAY_BUFFER, myRectangle->GetHandlerVertexBuffer());
 	glBufferData(GL_ARRAY_BUFFER, myRectangle->GetVerticesSize(), myRectangle->GetVertices(), GL_STATIC_DRAW);
 
-	
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, myRectangle->GetHandlerElementBuffer());
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, myRectangle->GetElementsSize(), myRectangle->GetElements(), GL_STATIC_DRAW);
+	if (myRectangle->GetNumTriangles() > 0)
+	{
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, myRectangle->GetHandlerElementBuffer());
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, myRectangle->GetElementsSize(), myRectangle->GetElements(), GL_STATIC_DRAW);
+	}
 
 	//////////////////////////////////////////////////////////////////////////////
 	//Shaders
 
 	char* vSource;
-	FileReader::Read("../Resources/Shaders/RectangleShader.vs", &vSource); //relative to ProjectFile, sending as a pointer to pointer	
+	FileReader::Read("../Resources/Shaders/CubeShader.vs", &vSource); //relative to ProjectFile, sending as a pointer to pointer	
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vSource, NULL);
@@ -73,7 +75,7 @@ int main(int argc, char* argv[])
 	vSource = NULL;
 	
 	char* fSource;
-	FileReader::Read("../Resources/Shaders/RectangleShader.fs", fSource); //relative to ProjectFile, sending as a reference to a pointer
+	FileReader::Read("../Resources/Shaders/CubeShader.fs", fSource); //relative to ProjectFile, sending as a reference to a pointer
 
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fSource, NULL);
@@ -96,7 +98,7 @@ int main(int argc, char* argv[])
 	//Attribute pointers
 
 	GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
-	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 7*sizeof(float), 0);
+	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), 0);
 	glEnableVertexAttribArray(posAttrib);
 
 	GLint uniTime = glGetUniformLocation(shaderProgram, "time");	
@@ -104,11 +106,11 @@ int main(int argc, char* argv[])
 	//glUniform3f(uniColor, 1.0f, 0.0f, 0.0f);
 	GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
 	glEnableVertexAttribArray(colAttrib);
-	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float)));
+	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 
 	GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
 	glEnableVertexAttribArray(texAttrib);
-	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 7*sizeof(float), (void*)(5*sizeof(float)));
+	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(6*sizeof(float)));
 
 	//Activate Texture Units, not needed when only one image used.
 	//2 steps:
@@ -135,6 +137,8 @@ int main(int argc, char* argv[])
 	GLfloat angle = -45.0f;
 
 	//////////////////////////////////////////////////////////////////////////////
+	glEnable(GL_DEPTH_TEST);
+
 
 	SDL_Event windowEvent;
 	while (true)
@@ -171,7 +175,7 @@ int main(int argc, char* argv[])
 		model = glm::scale(model, glm::vec3(s, s, s)); //scaling the image with a sin function
 
 		glm::mat4 view = glm::lookAt(
-			glm::vec3(0.0f, 0.0f, 2.0f), //camera position
+			glm::vec3(0.0f, 1.0f, 2.0f), //camera position
 			glm::vec3(0.0f, 0.0f, 0.0f), //point of interest
 			glm::vec3(0.0f, 1.0f, 0.0f)  //y is UP,    x,z is the "plane"  ground			
 			);
@@ -187,9 +191,10 @@ int main(int argc, char* argv[])
 
 		/////////////////////////////////		//Drawing the stuff
 		
-		//glDrawArrays(GL_TRIANGLES, 0, 3);		//Drawing the vertices from vbo directly
-
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	//6 elements or 6 vertexElements ~ 2 triangles
+		if (myRectangle->GetNumTriangles() == 0)
+			glDrawArrays(GL_TRIANGLES, 0, 36);		//Drawing the vertices from vbo directly
+		else
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	//6 elements or 6 vertexElements ~ 2 triangles
 		
 		/////////////////////////////////
 
