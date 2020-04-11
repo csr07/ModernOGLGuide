@@ -123,6 +123,8 @@ int main(int argc, char* argv[])
 	GLint uniView = glGetUniformLocation(shaderProgram, "view");
 	GLint uniProj = glGetUniformLocation(shaderProgram, "proj");
 
+	GLint uniOverrideColor = glGetUniformLocation(shaderProgram, "overrideColor");
+
 	//////////////////////////////////////////////////////////////////////////////
 	//Time stuff
 	auto t_start = std::chrono::high_resolution_clock::now();
@@ -154,7 +156,7 @@ int main(int argc, char* argv[])
 		}		
 
 		/////////////////////////////////		//Clear Buffers
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 		/////////////////////////////////		//Time update
@@ -197,15 +199,30 @@ int main(int argc, char* argv[])
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	//6 elements or 6 vertexElements ~ 2 triangles
 
 		//Draw the floor
-		
-		glDrawArrays(GL_TRIANGLES, 36, 6);
+		glEnable(GL_STENCIL_TEST);
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);	// Pass always writting 1s
+		glStencilOp(GL_KEEP,				//if stencil test fails
+					GL_KEEP,				//stencil passes, depth fails
+					GL_REPLACE);			//stencil passes, depth passes
+		glStencilMask(0xFF);				//Write to Stencil Buffer
+
+		glDepthMask(GL_FALSE);				//Don't write to Depth Buffer
+		glClear(GL_STENCIL_BUFFER_BIT);		//Clear Stencil Buffer with 0s
+
+		glDrawArrays(GL_TRIANGLES, 36, 6);		
 
 		//Transform and draw the second cube
+		glDepthMask(GL_TRUE);
+		glStencilFunc(GL_EQUAL, 1, 0xFF);	//PassTest if stencil value is 1
+		glStencilMask(0x00);
 
 		model = glm::scale(glm::translate(model, glm::vec3(0, 0, -1)), glm::vec3(1, 1, -1));
 		glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
+		glUniform3f(uniOverrideColor, 0.4f, 0.4f, 0.4f);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glUniform3f(uniOverrideColor, 1.0f, 1.0f, 1.0f);
 		
+		glDisable(GL_STENCIL_TEST);
 		/////////////////////////////////
 
 		SDL_GL_SwapWindow(window);
