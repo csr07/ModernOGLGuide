@@ -8,7 +8,7 @@ Texture::Texture()
 	int width, height;
 	unsigned char* image;
 
-	glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE0); // NOT needed here because only defining the textures by now
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	image = SOIL_load_image("../Resources/Textures/Kitten.png", &width, &height, 0, SOIL_LOAD_RGB);
 
@@ -36,4 +36,9 @@ Texture::Texture()
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	SOIL_free_image_data(image);
+}
+
+Texture::~Texture()
+{
+	glDeleteTextures(2, textures);
 }

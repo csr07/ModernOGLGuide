@@ -6,7 +6,8 @@ class Texture
 {
 public:
 	Texture();
+	~Texture();
 
-private:
+public:  //FIX THIS STUFF
 	GLuint textures[2];
 };

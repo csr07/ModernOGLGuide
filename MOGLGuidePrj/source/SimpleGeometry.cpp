@@ -21,5 +21,8 @@ SimpleGeometry::SimpleGeometry(const char* fname) :
 
 SimpleGeometry::~SimpleGeometry()
 {
-	printf_s("in ~SimpleGeometry()");	
+	printf_s("in ~SimpleGeometry()");
+
+	glDeleteBuffers(1, &_hvbo);
+	glDeleteBuffers(1, &_hebo);
 }
