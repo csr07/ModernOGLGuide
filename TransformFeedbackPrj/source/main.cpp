@@ -78,23 +78,37 @@ int main(int argc, char* argv[])
 	glBufferData(GL_ARRAY_BUFFER, sizeof(data)*3, nullptr, GL_STATIC_READ); //the output buffer needs to be 3 times the original data sentd
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
+	//Query objects
+
+	GLuint query;
+	glGenQueries(1, &query);
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	glEnable(GL_RASTERIZER_DISCARD);
 
 	glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, tbo);
 
+	glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, query);
 	glBeginTransformFeedback(GL_TRIANGLES);
 
 		glDrawArrays(GL_POINTS, 0, 5);
 
 	glEndTransformFeedback();
+	glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
 
 	glFlush();
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
+	//Retrieve query data
+	GLuint primitives;
+	glGetQueryObjectuiv(query, GL_QUERY_RESULT, &primitives);
 
+	//Retrieve feedback Data
 	GLfloat feedback[15];
 	glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(feedback), feedback);
+
+	printf_s("Primitives Written: %d \n", primitives);
 
 	printf_s("Transform Feedback results: \n");
 	for (int i = 0; i < 15; i++)
