@@ -33,6 +33,7 @@ bld/
 
 MOGLGuidePrj/x64/Debug/
 GeometryShadersPrj/x64/Debug/
+TransformFeedbackPrj/x64/Debug/
 x64/Debug/SDL2.dll
 
 # Visual Studio 2015/2017 cache/options directory
