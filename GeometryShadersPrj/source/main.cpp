@@ -101,10 +101,10 @@ int main(int argc, char* argv[])
 	glGenBuffers(1, &vbo);
 
 	float points[] = {
-		-0.45f, 0.45f, 1.0f, 0.0f, 0.0f,
-		 0.45f, 0.45f, 0.0f, 1.0f, 0.0f,
-		 0.45f, -0.45f, 0.0f, 0.0f, 1.0f,
-		-0.45f, -0.45f, 1.0f, 1.0f, 0.0f
+		-0.45f, 0.45f, 1.0f, 0.0f, 0.0f, 4.0f,
+		 0.45f, 0.45f, 0.0f, 1.0f, 0.0f, 8.0f,
+		 0.45f, -0.45f, 0.0f, 0.0f, 1.0f, 16.0f,
+		-0.45f, -0.45f, 1.0f, 1.0f, 0.0f, 32.0f
 	};
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -116,11 +116,15 @@ int main(int argc, char* argv[])
 
 	GLint posAttrib = glGetAttribLocation(program, "pos");
 	glEnableVertexAttribArray(posAttrib);
-	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), 0);
+	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 6*sizeof(float), 0);
 
 	GLint colorAttrib = glGetAttribLocation(program, "color");
 	glEnableVertexAttribArray(colorAttrib);
-	glVertexAttribPointer(colorAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2*sizeof(float)));
+	glVertexAttribPointer(colorAttrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2*sizeof(float)));
+
+	GLint sidesAttrib = glGetAttribLocation(program, "sides");
+	glEnableVertexAttribArray(sidesAttrib);
+	glVertexAttribPointer(sidesAttrib, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(5 * sizeof(float)));
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
