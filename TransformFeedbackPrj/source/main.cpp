@@ -28,19 +28,25 @@ int main(int argc, char* argv[])
 	GLuint shader;
 	char* source;
 	FileReader::Read("../Resources/Shaders/FeedbackShader.vs", source);
+		shader = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(shader, 1, &source, nullptr);
+		glCompileShader(shader);
+		delete(source);
 
-	shader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(shader, 1, &source, nullptr);
-	glCompileShader(shader);
-	delete(source);
+	GLuint gShader;
+	char* gSource;
+	FileReader::Read("../Resources/Shaders/FeedbackShader.gs", gSource);
+		gShader = glCreateShader(GL_GEOMETRY_SHADER);
+		glShaderSource(gShader, 1, &gSource, nullptr);
+		glCompileShader(gShader);
+		delete(gSource);
 
 	GLuint program = glCreateProgram();
 	glAttachShader(program, shader);
-
+	glAttachShader(program, gShader);
 
 	const GLchar* feedbackVaryings[] = { "outValue" };
 	glTransformFeedbackVaryings(program, 1, feedbackVaryings, GL_INTERLEAVED_ATTRIBS);
-
 
 	glLinkProgram(program);
 	glUseProgram(program);
@@ -69,7 +75,7 @@ int main(int argc, char* argv[])
 	GLuint tbo;
 	glGenBuffers(1, &tbo);
 	glBindBuffer(GL_ARRAY_BUFFER, tbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(data), nullptr, GL_STATIC_READ);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(data)*3, nullptr, GL_STATIC_READ); //the output buffer needs to be 3 times the original data sentd
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -77,7 +83,7 @@ int main(int argc, char* argv[])
 
 	glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, tbo);
 
-	glBeginTransformFeedback(GL_POINTS);
+	glBeginTransformFeedback(GL_TRIANGLES);
 
 		glDrawArrays(GL_POINTS, 0, 5);
 
@@ -87,11 +93,14 @@ int main(int argc, char* argv[])
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	GLfloat feedback[5];
+	GLfloat feedback[15];
 	glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(feedback), feedback);
 
 	printf_s("Transform Feedback results: \n");
-	printf_s("%f %f %f %f %f \n\n", feedback[0], feedback[1], feedback[2], feedback[3], feedback[4]);
+	for (int i = 0; i < 15; i++)
+	{
+		printf_s("%f \n", feedback[i]);
+	}	
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
