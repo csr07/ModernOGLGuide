@@ -7,7 +7,7 @@
 
 #include "FileReader.h"
 
-void CreateShadersAndProgram(const char* vsPath, const char* fsPath, GLuint& vertexShader, GLuint& fragmentShader, GLuint& shaderProgram)
+void CreateShadersAndProgram(const char* vsPath, const char* gsPath, const char* fsPath, GLuint& vertexShader,GLuint& geometryShader, GLuint& fragmentShader, GLuint& shaderProgram)
 {
 	char* vSource;
 	FileReader::Read(vsPath, &vSource); //relative to ProjectFile, sending as a pointer to pointer	
@@ -24,6 +24,8 @@ void CreateShadersAndProgram(const char* vsPath, const char* fsPath, GLuint& ver
 	delete(vSource);
 	vSource = NULL;
 
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+
 	char* fSource;
 	FileReader::Read(fsPath, fSource); //relative to ProjectFile, sending as a reference to a pointer
 
@@ -37,8 +39,28 @@ void CreateShadersAndProgram(const char* vsPath, const char* fsPath, GLuint& ver
 
 	delete(fSource);
 	fSource = NULL;
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+
+	char* gSource;
+	FileReader::Read(gsPath, gSource);
+
+	geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
+	glShaderSource(geometryShader, 1, &gSource, NULL);
+	glCompileShader(geometryShader);
+
+	glGetShaderiv(geometryShader, GL_COMPILE_STATUS, &status);
+	char geom_buffer[512];
+	glGetShaderInfoLog(geometryShader, 512, NULL, geom_buffer);
+
+	delete(gSource);
+	gSource = NULL;
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+
 	shaderProgram = glCreateProgram();
 	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, geometryShader);
 	glAttachShader(shaderProgram, fragmentShader);
 
 	glLinkProgram(shaderProgram);
@@ -64,8 +86,14 @@ int main(int argc, char* argv[])
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	GLuint vShader, fShader, program;	
-	CreateShadersAndProgram("../Resources/Shaders/GeometryShader.vs", "../Resources/Shaders/GeometryShader.fs", vShader, fShader, program);
+	GLuint vShader, fShader, gShader, program;	
+	CreateShadersAndProgram("../Resources/Shaders/GeometryShader.vs", 
+							"../Resources/Shaders/GeometryShader.gs",
+							"../Resources/Shaders/GeometryShader.fs",							
+							vShader, 
+							gShader, 
+							fShader, 
+							program);
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
